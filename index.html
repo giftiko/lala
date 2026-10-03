@@ -3,9 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>FastAPI Frontend Dashboard</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <p>hello world</p>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center py-10 px-4">
+
+    <div class="max-w-3xl w-full bg-slate-800 rounded-xl shadow-2xl p-8 border border-slate-700">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-indigo-400">🚀 FastAPI Frontend Dashboard</h1>
+            <p class="text-slate-400 mt-2">Test your Python endpoints directly from a clean HTML interface</p>
+        </div>
+
+        <!-- Base URL Config -->
+        <div class="mb-6 bg-slate-900 p-4 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-700">
+            <label for="baseUrl" class="text-sm font-semibold text-slate-300">FastAPI Server URL:</label>
+            <input type="text" id="baseUrl" value="http://127.0.0.1:8000" class="bg-slate-800 border border-slate-600 rounded px-3 py-1.5 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 w-full sm:w-64">
+        </div>
+
+        <!-- Endpoints Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+            <!-- /sup -->
+            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+                    <h3 class="font-semibold text-lg mt-2 text-slate-200">/sup</h3>
+                    <p class="text-xs text-slate-400 mt-1">Returns greeting message.</p>
+                </div>
+                <button onclick="callEndpoint('/sup')" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded transition text-sm">Send Request</button>
+            </div>
+
+            <!-- /name -->
+            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+                    <h3 class="font-semibold text-lg mt-2 text-slate-200">/name</h3>
+                    <p class="text-xs text-slate-400 mt-1">Returns your name.</p>
+                </div>
+                <button onclick="callEndpoint('/name')" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded transition text-sm">Send Request</button>
+            </div>
+
+            <!-- /age -->
+            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+                    <h3 class="font-semibold text-lg mt-2 text-slate-200">/age</h3>
+                    <p class="text-xs text-slate-400 mt-1">Returns age details.</p>
+                </div>
+                <button onclick="callEndpoint('/age')" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded transition text-sm">Send Request</button>
+            </div>
+
+            <!-- /items/{id} -->
+            <div class="bg-slate-900 p-4 rounded-lg border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <span class="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+                    <h3 class="font-semibold text-lg mt-2 text-slate-200">/items/{id}</h3>
+                    <div class="flex gap-2 mt-2">
+                        <input type="number" id="itemId" placeholder="ID" value="1" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs w-16 text-slate-100">
+                        <input type="text" id="itemQuery" placeholder="Query (?q=...)" class="bg-slate-800 border border-slate-600 rounded px-2 py-1 text-xs w-full text-slate-100">
+                    </div>
+                </div>
+                <button onclick="callItemEndpoint()" class="mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-2 px-4 rounded transition text-sm">Send Request</button>
+            </div>
+        </div>
+
+        <!-- Response Section -->
+        <div class="bg-slate-900 rounded-lg p-4 border border-slate-700">
+            <h2 class="text-sm font-semibold text-slate-400 mb-2 uppercase tracking-wider">Live Response Output</h2>
+            <pre id="responseOutput" class="bg-black/50 p-4 rounded text-emerald-400 text-sm font-mono overflow-x-auto min-h-[100px] flex items-center justify-center text-slate-500">// Click any button above to see API response here...</pre>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        async function callEndpoint(path) {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const output = document.getElementById('responseOutput');
+            output.textContent = "Loading...";
+            output.className = "bg-black/50 p-4 rounded text-yellow-400 text-sm font-mono overflow-x-auto min-h-[100px]";
+
+            try {
+                const response = await fetch(`${baseUrl}${path}`);
+                const data = await response.json();
+                output.textContent = JSON.stringify(data, null, 2);
+                output.className = "bg-black/50 p-4 rounded text-emerald-400 text-sm font-mono overflow-x-auto min-h-[100px]";
+            } catch (error) {
+                output.textContent = "Error: Could not connect to FastAPI server. Make sure uvicorn is running!";
+                output.className = "bg-black/50 p-4 rounded text-red-400 text-sm font-mono overflow-x-auto min-h-[100px]";
+            }
+        }
+
+        async function callItemEndpoint() {
+            const id = document.getElementById('itemId').value;
+            const query = document.getElementById('itemQuery').value.trim();
+            let path = `/items/${id}`;
+            if (query) {
+                path += `?q=${encodeURIComponent(query)}`;
+            }
+            callEndpoint(path);
+        }
+    </script>
 </body>
 </html>
